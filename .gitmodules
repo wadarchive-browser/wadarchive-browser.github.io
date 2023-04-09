@@ -1,0 +1,4 @@
+[submodule "src/msgpack-javascript"]
+	path = src/msgpack-javascript
+	url = https://github.com/uwx/msgpack-javascript
+	branch = main
