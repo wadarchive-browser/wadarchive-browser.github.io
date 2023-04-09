@@ -1,7 +1,5 @@
 <script lang="ts">
     import { page } from "$app/stores";
-    import logo from "$lib/images/svelte-logo.svg";
-    import github from "$lib/images/github.svg";
     import { Button, Col, Form, FormGroup, Input, Label, Nav, NavItem, NavLink, Row } from "sveltestrap";
     import { goto } from "$app/navigation";
 
