@@ -64,6 +64,7 @@
     .endoomthumb {
         width: 100%;
     }
+    .main-image,
     .automapimage,
     .endoomimage {
         max-width: 100%;
