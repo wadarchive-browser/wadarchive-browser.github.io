@@ -83,6 +83,15 @@
         height: 20px;
         vertical-align: middle;
     }
+
+    .pre-scrollable {
+        max-height: 340px;
+        overflow-y: scroll;
+    }
+
+    h2 {
+        margin-top: 2rem;
+    }
 </style>
 
 <svelte:head>
@@ -177,6 +186,11 @@
         <a rel="nofollow" href={formatWadDownloadPath(wad)}><Icon style="color: white" name="download" /> Download <em>{wad.title}</em> from Wad Archive (Internet Archive mirror)</a>
     {/if}
 
+    {#if wad.Readmes.length}
+        <h2>Readme</h2>
+        <pre class="pre-scrollable">{wad.Readmes[0]}</pre>
+    {/if}
+
     {#if wad.Maps.length}
         <h2>Maps</h2>
         <Container>
@@ -251,7 +265,7 @@
         {/each}
     {/if}
 
-    <pre>{JSON.stringify(wad, null, 4)}</pre>
+    <!--<pre>{JSON.stringify(wad, null, 4)}</pre>-->
     <!--<div>{@html data.content}</div>-->
 
     {#if wad.Maps.length}

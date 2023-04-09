@@ -1,4 +1,4 @@
-// https://stackoverflow.com/a/14919494
+//! https://stackoverflow.com/a/14919494
 /**
  * Format bytes as human-readable text.
  *

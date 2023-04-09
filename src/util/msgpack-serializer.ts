@@ -1,44 +1,34 @@
-import { convertAll, convertValues } from ".";
+import { convertAll } from '.';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DeserializeType = (new (input: ArrayLike<unknown> | Record<string, unknown>) => MessagePackObject) | CustomConverter<any, any>;
+const keepType = Symbol('keep');
+type TypeArg<Value> = (new (input: ArrayLike<unknown> | Record<string, unknown>) => Value) | Converter<never, Value> | typeof keepType;
 
-function deserializeWithConverter(value: unknown, converterOrType?: DeserializeType): unknown {
-    if (converterOrType === undefined) {
-        return value;
+function doConvertValue<T>(typeArg: TypeArg<T>, value: unknown): T {
+    if (typeArg === keepType) {
+        return value as T;
     }
 
-    if (converterOrType instanceof CustomConverter) {
-        return converterOrType.convert(value);
+    if (typeArg instanceof Converter) {
+        return typeArg.convert(value as never);
     }
 
-    if (messagePackObject in converterOrType && converterOrType[messagePackObject]) {
-        return new converterOrType(value as (ArrayLike<unknown> | Record<string, unknown>));
+    if (messagePackObject in typeArg) {
+        return new typeArg(value as (ArrayLike<unknown> | Record<string, unknown>));
     }
 
-    throw new TypeError('deserializeType is not a CustomConverter or subtype of MessagePackObject');
+    throw new TypeError('typeArg is not a Converter or constructable MessagePackObject');
 }
 
 class MessagePackProperty {
     private key?: string | number;
-    private converter?: DeserializeType;
-    private propIsRecord = false;
-    private propIsArray = false;
+    private converter?: TypeArg<unknown>;
 
     setKey(key: string | number) {
         this.key = key;
     }
 
-    setConverter(converter: DeserializeType) {
-        this.converter = converter;
-    }
-
-    isRecord() {
-        this.propIsRecord = true;
-    }
-
-    isArray() {
-        this.propIsArray = true;
+    setTypeOrConverter(typeOrConverter: TypeArg<unknown>) {
+        this.converter = typeOrConverter;
     }
 
     deserialize(input: ArrayLike<unknown> | Record<string, unknown>): unknown {
@@ -51,13 +41,7 @@ class MessagePackProperty {
         }
 
         if (this.converter) {
-            if (this.propIsRecord) {
-                value = convertValues(value as Record<string, unknown>, v => deserializeWithConverter(v, this.converter));
-            } else if (this.propIsArray) {
-                value = (value as unknown[]).map(v => deserializeWithConverter(v, this.converter));
-            } else {
-                value = deserializeWithConverter(value, this.converter);
-            }
+            value = doConvertValue(this.converter, value);
         }
 
         return value;
@@ -65,10 +49,9 @@ class MessagePackProperty {
 }
 
 class MessagePackSettings {
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    private static configs = new WeakMap<Function, MessagePackSettings>();
+    private static readonly configs = new WeakMap<NewableFunction, MessagePackSettings>();
 
-    private properties: Record<string, MessagePackProperty> = {};
+    private readonly properties: Record<string, MessagePackProperty> = {};
 
     static get<This extends MessagePackObject, PropertyName extends keyof This & string>(target: This, propertyName: PropertyName) {
         let value = MessagePackSettings.configs.get(target.constructor);
@@ -96,7 +79,7 @@ class MessagePackSettings {
     }
 }
 
-const messagePackObject = Symbol('messagePackObject');
+export const messagePackObject = Symbol('messagePackObject');
 export abstract class MessagePackObject {
     static [messagePackObject] = true;
 
@@ -112,25 +95,64 @@ export function key<This extends MessagePackObject, PropertyName extends keyof T
     };
 }
 
-export function converter<This extends MessagePackObject, PropertyName extends keyof This & string>(deserializeType: DeserializeType) {
+type AnyKey = string | number | symbol;
+
+export function type<This extends MessagePackObject, PropertyName extends keyof This & string, Value extends This[PropertyName]>(type: TypeArg<Value> | 'keep') {
     return function (target: This, propertyName: PropertyName): void {
-        MessagePackSettings.get(target, propertyName).setConverter(deserializeType);
+        if (type === 'keep') return;
+
+        MessagePackSettings.get(target, propertyName).setTypeOrConverter(type);
     };
 }
 
-export function record<This extends MessagePackObject, PropertyName extends keyof This & string>(target: This, propertyName: PropertyName) {
-    MessagePackSettings.get(target, propertyName).isRecord();
+export function array<T>(elementType: TypeArg<T> | 'keep') {
+    return new ArrayConverter(consumeKeep(elementType));
 }
 
-export function array<This extends MessagePackObject, PropertyName extends keyof This & string>(target: This, propertyName: PropertyName) {
-    MessagePackSettings.get(target, propertyName).isArray();
+export function record<TK extends AnyKey = never, TV = never>(keyType: TypeArg<TK> | 'keep', valueType: TypeArg<TV> | 'keep') {
+    return new RecordConverter(consumeKeep(keyType), consumeKeep(valueType));
 }
 
-export class CustomConverter<TIn, TOut> {
+function consumeKeep<T>(arg: TypeArg<T> | 'keep'): TypeArg<T> {
+    return arg === 'keep' ? keepType : arg;
+}
+
+abstract class Converter<TIn, TOut> {
+    abstract convert(input: TIn): TOut;
+}
+
+export class CustomConverter<TIn, TOut> extends Converter<TIn, TOut> {
     constructor(private readonly convertFunc: (input: TIn) => TOut) {
+        super();
     }
 
     convert(input: TIn): TOut {
         return this.convertFunc(input);
+    }
+}
+
+class ArrayConverter<T> extends Converter<unknown[], T[]> {
+    private readonly convertFunc: (e: unknown) => T;
+
+    constructor(elementType: TypeArg<T>) {
+        super();
+        this.convertFunc = e => doConvertValue(elementType, e);
+    }
+
+    convert(input: unknown[]): T[] {
+        return input.map(this.convertFunc);
+    }
+}
+
+class RecordConverter<TK extends AnyKey, TV> extends Converter<Record<AnyKey, unknown>, Record<TK, TV>> {
+    private readonly convertFunc: (k: unknown, v: unknown) => [TK, TV];
+
+    constructor(keyType: TypeArg<TK>, valueType: TypeArg<TV>) {
+        super();
+        this.convertFunc = (k, v) => [doConvertValue(keyType, k), doConvertValue(valueType, v)];
+    }
+
+    convert(input: Record<AnyKey, unknown>): Record<TK, TV> {
+        return convertAll(input, this.convertFunc);
     }
 }
