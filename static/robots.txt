@@ -1,2 +1,2 @@
 # https://www.robotstxt.org/robotstxt.html
-Sitemap: https://wadarchive-browser.github.io/sitemap_index.xml
+Sitemap: https://wadarchive-browser.github.io/sitemap-index.xml
