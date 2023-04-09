@@ -1,7 +1,7 @@
 import { CustomConverter, MessagePackObject, key, converter, record, array } from './msgpack-serializer';
 
 // https://stackoverflow.com/a/34310051
-export const HexConverter = new CustomConverter<Uint8Array, string>(value => Array.from(value, byte => ('0' + (byte & 0xFF).toString(16)).slice(-2)).join(''));
+export const HexConverter = new CustomConverter<string, string>(convertUint8ArrayToHex);
 
 export type EncodedDate = [unixTimeSeconds: number, offsetMinutes: number];
 const DateConverter = new CustomConverter<EncodedDate, Date>(([unixTimeSeconds, offsetMinutes]) => new Date((unixTimeSeconds * 1000) + (offsetMinutes * 60 * 1000)));
@@ -45,14 +45,14 @@ type long = bigint;
 type bool = boolean;
 
 export class Wad extends MessagePackObject {
-    @key(0) @converter(HexConverter) readonly Id!: string;
+    @key(0) @converter(HexConverter) readonly Id!: Uint8Array;
     @key(1) readonly Name!: string | null;
     @key(2) readonly FallbackNames!: string[];
     @key(3) readonly Filename!: string | null;
     @key(4) readonly FallbackFilenames!: string[];
-    @key(5) @converter(HexConverter) readonly Sha1!: string;
-    @key(6) @converter(HexConverter) readonly Md5!: string;
-    @key(7) @converter(HexConverter) readonly Sha256!: string;
+    @key(5) @converter(HexConverter) readonly Sha1!: Uint8Array;
+    @key(6) @converter(HexConverter) readonly Md5!: Uint8Array;
+    @key(7) @converter(HexConverter) readonly Sha256!: Uint8Array;
     @key(8) readonly Size!: long;
     @key(9) readonly Type!: WadType;
     @key(10) readonly IsCorrupt!: bool;
@@ -99,4 +99,21 @@ export const enum WadType {
     EPK = 'EPK',
     PKE = 'PKE',
     UNKNOWN = 'UNKNOWN',
+}
+
+export function convertBinaryStringToUint8Array(string: string): Uint8Array {
+	const len = string.length;
+    const array = new Uint8Array(len);
+	for (let i = 0; i < len; i++) {
+		array[i] = string.charCodeAt(i);
+	}
+	return array;
+}
+
+export function convertUint8ArrayToHex(value: Uint8Array): string {
+    const hexArray: string[] = new Array(value.length);
+    for (let i = 0; i < value.length; i++) {
+        hexArray[i] = (value[i] & 0xFF).toString(16).padStart(2, '0');
+    }
+    return hexArray.join('');
 }

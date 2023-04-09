@@ -1,5 +1,6 @@
-import { HexConverter, Wad } from './msgpack-models';
-import { decode as msgpackDecode } from '@msgpack/msgpack';
+import { convertKeys } from '.';
+import { HexConverter, Wad, convertUint8ArrayToHex } from './msgpack-models';
+import { decode as msgpackDecode } from '../msgpack-javascript/src/index';
 
 const cachedFiles = new Map<string, ArrayBuffer>();
 
@@ -10,7 +11,10 @@ async function fetchBufferAndCache(path: string): Promise<ArrayBuffer> {
     }
 
     const result = await fetch(path)
-        .then(e => e.arrayBuffer());
+        .then(e => {
+            console.log(...e.headers);
+            return e.arrayBuffer();
+        });
         //.then(e => gunzipSync(new Uint8Array(e)));
     cachedFiles.set(path, result);
     return result;
@@ -19,11 +23,7 @@ async function fetchBufferAndCache(path: string): Promise<ArrayBuffer> {
 async function querySingleWad(id: string): Promise<Wad> {
     const decompressedMessage = await fetchBufferAndCache(`/wad-data/${id.slice(0, 2)}.msg.gz`);
 
-    interface WadsResult {
-        [id: string]: unknown[];
-    }
-
-    const decodedMessage = msgpackDecode(new Uint8Array(decompressedMessage), { useBigInt64: true }) as WadsResult;
+    const decodedMessage = msgpackDecode(new Uint8Array(decompressedMessage), { useBigInt64: true }) as Record<string, unknown[]>;
 
     return new Wad(decodedMessage[id]);
 }

@@ -15,7 +15,7 @@
         width: 100%;
     }
     .automap {
-        background: url($lib/images/automap.gif) no-repeat;
+        background: url($lib/images/automap.png) no-repeat;
         background-size: 20px 20px;
         text-indent: 25px;
         height: 20px;

@@ -1,5 +1,5 @@
 <script>
-	import Header from './Header.svelte';
+	import Header from '../components/Header.svelte';
 </script>
 
 <svelte:head>
@@ -16,7 +16,7 @@
 
 	<footer>
 		<p>Created by <a href="https://github.com/uwx">uwx</a></p>
-		<p>Content sourced from the Internet Archive</p>
+		<p>Content sourced from the <a href="https://archive.org/details/wadarchive">Internet Archive</a></p>
 		<p>Some content copyright © <a href="https://www.wad-archive.com/">Wad Archive</a></p>
 	</footer>
 </div>

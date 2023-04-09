@@ -1,3 +1,5 @@
+import { convertAll, convertValues } from ".";
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DeserializeType = (new (input: ArrayLike<unknown> | Record<string, unknown>) => MessagePackObject) | CustomConverter<any, any>;
 
@@ -38,7 +40,7 @@ class MessagePackProperty {
     isArray() {
         this.propIsArray = true;
     }
-    
+
     deserialize(input: ArrayLike<unknown> | Record<string, unknown>): unknown {
         if (this.key === undefined) return undefined;
 
@@ -50,7 +52,7 @@ class MessagePackProperty {
 
         if (this.converter) {
             if (this.propIsRecord) {
-                value = Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([k, v]) => [k, deserializeWithConverter(v, this.converter)]));
+                value = convertValues(value as Record<string, unknown>, v => deserializeWithConverter(v, this.converter));
             } else if (this.propIsArray) {
                 value = (value as unknown[]).map(v => deserializeWithConverter(v, this.converter));
             } else {
