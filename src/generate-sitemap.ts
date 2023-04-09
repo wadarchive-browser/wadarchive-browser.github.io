@@ -7,7 +7,7 @@ import { SitemapAndIndexStream, SitemapStream, lineSeparatedURLsToSitemapOptions
 import { createInterface } from 'readline/promises';
 import MemoryStream from 'memorystream';
 
-const pathRoot = 'https://wad-archive-mirror.github.io/';
+const pathRoot = 'https://wadarchive-browser.github.io/';
 
 const staticRoot = resolve('../static');
 
