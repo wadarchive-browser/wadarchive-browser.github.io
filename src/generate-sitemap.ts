@@ -22,11 +22,11 @@ const sms = new SitemapAndIndexStream({
         // if your server automatically serves sitemap.xml.gz when requesting sitemap.xml leave this line be
         // otherwise you will need to add .gz here and remove it a couple lines below so that both the index
         // and the actual file have a .gz extension
-        const path = `sitemaps/sitemap-${i}.xml`;
+        const path = `sitemaps/sitemap-${i}.xml.gz`;
 
         const ws = sitemapStream
             .pipe(createGzip()) // compress the output of the sitemap
-            .pipe(createWriteStream(resolve(staticRoot, path + '.gz'))); // write it to sitemap-NUMBER.xml
+            .pipe(createWriteStream(resolve(staticRoot, path))); // write it to sitemap-NUMBER.xml
 
         return [new URL(path, pathRoot).toString(), sitemapStream, ws];
     },
