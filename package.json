@@ -15,6 +15,8 @@
 		"@sveltejs/adapter-auto": "^2.0.0",
 		"@sveltejs/kit": "^1.5.0",
 		"@types/cookie": "^0.5.1",
+		"@types/eslint": "^8.37.0",
+		"@types/msgpack-lite": "^0.1.8",
 		"@typescript-eslint/eslint-plugin": "^5.45.0",
 		"@typescript-eslint/parser": "^5.45.0",
 		"eslint": "^8.28.0",
@@ -25,5 +27,13 @@
 		"typescript": "^5.0.0",
 		"vite": "^4.2.0"
 	},
-	"type": "module"
+	"type": "module",
+	"dependencies": {
+		"@js-temporal/polyfill": "^0.4.3",
+		"@msgpack/msgpack": "^3.0.0-beta2",
+		"fflate": "^0.7.4",
+		"msgpack-lite": "^0.1.26",
+		"svelte-icons": "^2.1.0",
+		"sveltestrap": "^5.10.0"
+	}
 }

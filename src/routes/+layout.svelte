@@ -1,7 +1,11 @@
 <script>
 	import Header from './Header.svelte';
-	import './styles.css';
 </script>
+
+<svelte:head>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@5/dist/cyborg/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1/font/bootstrap-icons.min.css">
+</svelte:head>
 
 <div class="app">
 	<Header />
@@ -11,7 +15,9 @@
 	</main>
 
 	<footer>
-		<p>visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to learn SvelteKit</p>
+		<p>Created by <a href="https://github.com/uwx">uwx</a></p>
+		<p>Content sourced from the Internet Archive</p>
+		<p>Some content copyright © <a href="https://www.wad-archive.com/">Wad Archive</a></p>
 	</footer>
 </div>
 
@@ -28,7 +34,7 @@
 		flex-direction: column;
 		padding: 1rem;
 		width: 100%;
-		max-width: 64rem;
+		max-width: 72rem;
 		margin: 0 auto;
 		box-sizing: border-box;
 	}
