@@ -1,8 +1,7 @@
 import { convertKeys } from '.';
 import { HexConverter, Wad, convertUint8ArrayToHex } from './msgpack-models';
 import { decode as msgpackDecode } from '../msgpack-javascript/src/index';
-import { gunzipStream } from './fflate-promisified';
-import { arrayBuffer } from './stream-consumers';
+import { gunzip } from './fflate-promisified';
 
 const cachedFiles = new Map<string, ArrayBuffer>();
 
@@ -16,7 +15,7 @@ async function fetchBufferAndCache(path: string): Promise<ArrayBuffer> {
         .then(e => {
             return e.headers.get('content-encoding') !== 'gzip'
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                ? arrayBuffer(gunzipStream(e.body!))
+                ? e.arrayBuffer().then(e => gunzip(new Uint8Array(e)))
                 : e.arrayBuffer();
         });
     cachedFiles.set(path, result);
