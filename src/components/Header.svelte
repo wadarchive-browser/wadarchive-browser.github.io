@@ -4,6 +4,12 @@
     import { goto } from "$app/navigation";
 
     let searchTerm: string;
+
+    page.subscribe(page => {
+        if (page.route.id === '/search') {
+            searchTerm = page.url.searchParams.get('q') ?? '';
+        }
+    });
 </script>
 
 <style>
@@ -26,7 +32,7 @@
                             type="search"
                             name="search"
                             id="searchWad"
-                            placeholder="hdoom.wad"
+                            placeholder="hdoom.pk3"
                             bind:value={searchTerm}
                         />
                     </Col>

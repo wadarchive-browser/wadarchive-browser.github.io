@@ -15,8 +15,7 @@
     let modalMap: Map | undefined;
 
     const promise = (async () => {
-        const wads = await queryWad(data.wadId);
-        const wad = wads[0];
+        const wad = await queryWad(data.wadId);
 
         const title = wad.Name
             ?? wad.FallbackNames[0]
@@ -46,7 +45,7 @@
             }
 
             if (wad.Maps.length) {
-                formattedDescription += ` featuring ${wad.Maps.length} maps (${wad.Maps.map(e => e.NiceNames?.LevelName ?? e.FallbackNiceNames?.[0].LevelName ?? e.Name).join(", ")})`;
+                formattedDescription += ` featuring ${wad.Maps.length} maps (${wad.Maps.map(e => e.NiceNames?.LevelName ?? e.FallbackNiceNames[0]?.LevelName ?? e.Name).join(", ")})`;
             }
         }
 
@@ -116,9 +115,7 @@
                         <Col><code>wad.Filename</code></Col>
                     {:else}
                         <Col xs="2">Filenames</Col>
-                        <Col
-                            >{#each wad.FallbackFilenames as filename, i}{i != 0 ? ";" : ""} <code>{filename}</code>{/each}</Col
-                        >
+                        <Col>{#each wad.FallbackFilenames as filename, i}{i != 0 ? ";" : ""} <code>{filename}</code>{/each}</Col>
                     {/if}
                 </Row>
                 <Row>
@@ -159,10 +156,12 @@
                         {/if}
                     </Col>
                 </Row>
+                {#if wad.CountsLumps != null}
                 <Row>
                     <Col xs="2">Lumps</Col>
                     <Col>{wad.CountsLumps}</Col>
                 </Row>
+                {/if}
                 {#if wad.Maps.length}
                 <Row>
                     <Col xs="2">Maps</Col>
