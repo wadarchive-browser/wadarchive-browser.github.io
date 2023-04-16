@@ -29,13 +29,17 @@
         }>
     }> = never;
 
+    let wadId: string | undefined;
+
     onMount(() => {
+        wadId = $page.url.searchParams.get('id') ?? undefined;
+
         if (!$page.url.searchParams.has('id')) {
             throw redirect(300, '/');
         }
 
         wadPromise = (async () => {
-            const wad = await queryWad($page.url.searchParams.get('id') ?? '');
+            const wad = await queryWad(wadId!);
 
             const title = wad.Name
                 ?? wad.FallbackNames[0]
@@ -133,8 +137,8 @@
 </style>
 
 <svelte:head>
-    {#if $page.url.searchParams.has('id')}
-        <link rel="preload" as="fetch" href="/wad-data/{$page.url.searchParams.get('id')?.slice(0, 2) ?? ''}.msg.gz">
+    {#if wadId}
+        <link rel="preload" as="fetch" href="/wad-data/{wadId.slice(0, 2)}.msg.gz">
     {/if}
     {#await wadPromise}
         <title>Wad Archive</title>
