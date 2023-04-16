@@ -1,0 +1,1 @@
+export const never: Promise<never> = new Promise(() => {/* empty */});

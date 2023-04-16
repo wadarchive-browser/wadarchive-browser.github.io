@@ -1,16 +1,22 @@
 <script lang="ts">
     import { Card, CardHeader, CardTitle, CardBody, CardSubtitle, CardText, Button, CardFooter } from "sveltestrap";
     import { WadFuzzy, searchWads, type SearchResult } from "../../util/wad-search";
-    import type { PageData } from "./$types";
+    import { onMount } from "svelte";
+    import { page } from "$app/stores";
+    import { never } from "../../util/promise";
 
-    export let data: PageData;
+    let searchResults: Promise<SearchResult & { query: string }> = never;
 
-    let searchResults: Promise<SearchResult>;
-
-    $: searchResults = (async () => {
-        if (data.query == null) return {count: 0, results: []};
-        return await searchWads(data.query, 250);
-    })();
+    onMount(() => {
+        searchResults = (async () => {
+            const query = $page.url.searchParams.get('q');
+            if (!query) return {query: '', count: 0, results: []};
+            return {
+                ...await searchWads(query, 250),
+                query
+            };
+        })();
+    });
 </script>
 
 <style>
@@ -32,8 +38,8 @@
     <h5><i>Searching... Make sure JavaScript is enabled, this may take a second.</i></h5>
 {:then results}
     <p>
-        <b>Found {results.count} matches for "{data.query}" {#if results.count > 250}(displaying top 250 matches){/if}</b><br>
-        Not what you were looking for? Try <a href="/googlesearch?q={encodeURIComponent(data.query ?? '')}">searching with Google</a>
+        <b>Found {results.count} matches for "{results.query}" {#if results.count > 250}(displaying top 250 matches){/if}</b><br>
+        Not what you were looking for? Try <a href="/googlesearch?q={encodeURIComponent(results.query)}">searching with Google</a>
     </p>
     {#each results.results as result}
         <a href="/wad/{result.Id}" class="resultlink">

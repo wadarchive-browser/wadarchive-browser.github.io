@@ -25,7 +25,7 @@ const sms = new SitemapAndIndexStream({
         const path = `sitemaps/sitemap-${i}.xml`;
 
         const ws = sitemapStream
-            .pipe(createGzip()) // compress the output of the sitemap
+            //.pipe(createGzip()) // compress the output of the sitemap
             .pipe(createWriteStream(resolve(staticRoot, path))); // write it to sitemap-NUMBER.xml
 
         return [new URL(path, pathRoot).toString(), sitemapStream, ws];
@@ -33,14 +33,14 @@ const sms = new SitemapAndIndexStream({
 });
 
 (async () => {
-    const readInterface = createInterface({
+    const allWadIds = createInterface({
         input: createReadStream(resolve(staticRoot, 'allWadIds.txt'))
     });
 
-    for await (const line of readInterface) {
+    for await (const wadId of allWadIds) {
         // console.log(line);
         sms.write({
-            url: new URL(`wad/${line}`, pathRoot).toString(),
+            url: new URL(`wad?id=${wadId}`, pathRoot).toString(),
             changefreq: EnumChangefreq.YEARLY
         } satisfies SitemapItemLoose);
     }

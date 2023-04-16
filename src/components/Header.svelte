@@ -2,14 +2,15 @@
     import { page } from "$app/stores";
     import { Button, Col, Form, FormGroup, Input, Label, Nav, NavItem, NavLink, Row } from "sveltestrap";
     import { goto } from "$app/navigation";
+    import { onMount } from "svelte";
 
     let searchTerm: string;
 
-    page.subscribe(page => {
-        if (page.route.id === '/search') {
-            searchTerm = page.url.searchParams.get('q') ?? '';
+    onMount(() => {
+        if ($page.route.id === '/search') {
+            searchTerm = $page.url.searchParams.get('q') ?? '';
         }
-    });
+    })
 </script>
 
 <style>
