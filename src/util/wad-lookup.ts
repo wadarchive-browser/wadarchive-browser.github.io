@@ -10,12 +10,15 @@ export async function fetchGzip(path: string, cache = true): Promise<ArrayBuffer
         return existingResult;
     }
 
-    const result = await fetch(path)
-        .then(e => {
-            return e.headers.get('content-encoding') !== 'gzip'
-                ? e.arrayBuffer().then(e => gunzip(new Uint8Array(e)))
-                : e.arrayBuffer();
-        });
+    const result = await fetch(path, {
+        method: 'GET',
+        credentials: 'include',
+        mode: 'no-cors',
+    }).then(e => {
+        return e.headers.get('content-encoding') !== 'gzip'
+            ? e.arrayBuffer().then(e => gunzip(new Uint8Array(e)))
+            : e.arrayBuffer();
+    });
     if (cache) {
         cachedFiles.set(path, result);
     }

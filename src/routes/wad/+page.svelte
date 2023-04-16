@@ -11,6 +11,7 @@
     import { redirect } from '@sveltejs/kit';
     import { onMount } from 'svelte';
     import { never } from '../../util/promise';
+    import MetaTags from 'svelte-meta-tags/MetaTags.svelte';
 
     let modalEndoom: [endoom: Endoom, mode: "text" | "image"] | undefined;
 
@@ -20,6 +21,12 @@
         title: string,
         mainScreenshot: string | null,
         formattedDescription: string,
+        ogImages(): Generator<{
+            url: string;
+            alt?: string;
+            width?: number;
+            height?: number;
+        }>
     }> = never;
 
     onMount(() => {
@@ -58,19 +65,36 @@
                 }
 
                 if (wad.Maps.length) {
-                    formattedDescription += ` featuring ${wad.Maps.length} maps (${wad.Maps.map(e => e.NiceNames?.LevelName ?? e.FallbackNiceNames[0]?.LevelName ?? e.Name).join(", ")})`;
+                    formattedDescription += ` featuring ${wad.Maps.length} map${wad.Maps.length === 1 ? '' : 's'} (${wad.Maps.map(e => e.NiceNames?.LevelName ?? e.FallbackNiceNames[0]?.LevelName ?? e.Name).join(", ")})`;
                 }
             }
+
+            formattedDescription = trimToLength(500, formattedDescription);
 
             return {
                 ...wad,
                 title,
                 mainScreenshot,
-                formattedDescription: trimToLength(500, formattedDescription),
+                formattedDescription,
+                *ogImages() {
+                    if (mainScreenshot) {
+                        yield {
+                            url: mainScreenshot,
+                            alt: title
+                        };
+                    }
+                    for (const map of wad.Maps) {
+                        if (!map.Screenshot) continue;
+
+                        yield {
+                            url: formatMapScreenshot(wad, map),
+                            alt: map.NiceNames?.LevelName ?? map.FallbackNiceNames[0]?.LevelName ?? map.Name
+                        };
+                    }
+                }
             };
         })();
-    })
-
+    });
 </script>
 
 <style>
@@ -109,16 +133,37 @@
 </style>
 
 <svelte:head>
+    {#if $page.url.searchParams.has('id')}
+        <link rel="preload" as="fetch" href="/wad-data/{$page.url.searchParams.get('id')?.slice(0, 2) ?? ''}.msg.gz">
+    {/if}
     {#await wadPromise}
         <title>Wad Archive</title>
-    {:then wad}
-        <title>{wad.title} - Wad Archive</title>
     {/await}
 </svelte:head>
 
 {#await wadPromise}
     <h5><i>Loading... Make sure JavaScript is enabled.</i></h5>
 {:then wad}
+    <MetaTags
+        title={wad.title}
+        titleTemplate="%s - Wad Archive"
+        description={wad.formattedDescription}
+        openGraph={{
+            type: 'website',
+            title: `${wad.title} - Wad Archive`,
+            description: wad.formattedDescription,
+            images: [...wad.ogImages()],
+            site_name: 'Wad Archive Mirror'
+        }}
+        twitter={{
+            cardType: 'summary_large_image',
+            title: `${wad.title} - Wad Archive`,
+            description: wad.formattedDescription,
+            image: wad.mainScreenshot ?? undefined,
+            imageAlt: `Main screenshot for ${wad.title}`
+        }}
+    />
+
     <h1>{wad.title}</h1>
 
     <Container>
