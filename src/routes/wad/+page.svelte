@@ -138,7 +138,7 @@
 
 <svelte:head>
     {#if wadId}
-        <link rel="preload" as="fetch" href="/wad-data/{wadId.slice(0, 2)}.msg.gz">
+        <link rel="preload" as="fetch" href="/wad-data/{wadId.slice(0, 2)}.msg.gz" crossorigin="anonymous">
     {/if}
     {#await wadPromise}
         <title>Wad Archive</title>
