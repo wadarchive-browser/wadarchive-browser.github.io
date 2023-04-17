@@ -11,9 +11,7 @@ export async function fetchGzip(path: string, cache = true): Promise<ArrayBuffer
     }
 
     const result = await fetch(path, {
-        method: 'GET',
-        credentials: 'same-origin',
-        mode: 'cors'
+        cache: 'force-cache'
     }).then(e => {
         return e.headers.get('content-encoding') !== 'gzip'
             ? e.arrayBuffer().then(e => gunzip(new Uint8Array(e)))
