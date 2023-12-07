@@ -1,7 +1,7 @@
 <script lang="ts">
     import { page } from '$app/stores';
     import { Container, Row, Col, Icon, Card, Modal } from "sveltestrap";
-    import { formatGraphicPath, formatMapScreenshot, formatPalettePath, formatWadDownloadPath, formatMapAutomap, formatEndoomPath } from "../../util/ia-url-formatter";
+    import { getCdnUrl, formatGraphicPath, formatMapScreenshot, formatPalettePath, formatWadDownloadPath, formatMapAutomap, formatEndoomPath } from "../../util/ia-url-formatter";
     import type { PageData } from "./$types";
     import MapComponent from "../../components/MapComponent.svelte";
     import type { Endoom, Map, NiceNames, Wad, WadType } from "../../util/msgpack-models";
@@ -53,6 +53,8 @@
             if (titlepic) mainScreenshot = formatGraphicPath(wad, titlepic);
             else if (wad.Maps[0]?.Screenshot) mainScreenshot = formatMapScreenshot(wad, wad.Maps[0]);
             else if (wad.Graphics.length > 0) mainScreenshot = formatGraphicPath(wad, wad.Graphics[0]);
+
+            if (mainScreenshot != null) mainScreenshot = getCdnUrl(mainScreenshot);
 
             let formattedDescription: string;
             if (wad.Description ?? wad.FallbackDescriptions?.[0]) {
@@ -271,9 +273,9 @@
                 {#each wad.Graphics as graphic}
                     <Col>
                         <Card body inverse class="mb-4">
-                            <a href={formatGraphicPath(wad, graphic)} style="text-align: center">
+                            <a href={getCdnUrl(formatGraphicPath(wad, graphic))} style="text-align: center">
                                 <div>
-                                    <img class="graphicsimage" alt={graphic.Name} src={formatGraphicPath(wad, graphic)} />
+                                    <img class="graphicsimage" alt={graphic.Name} src={getCdnUrl(formatGraphicPath(wad, graphic))} />
                                 </div>
                                 {graphic.Name}
                             </a>
@@ -292,7 +294,7 @@
                     <Col>
                         <Card body inverse class="mb-4">
                             <a href={formatEndoomPath(wad, endoom)} on:click|preventDefault={() => (modalEndoom = [endoom, "image"])} style="text-align: center">
-                                <img class="endoomthumb" alt={endoom.Name} src={formatEndoomPath(wad, endoom)} />
+                                <img class="endoomthumb" alt={endoom.Name} src={getCdnUrl(formatEndoomPath(wad, endoom))} />
                             </a>
                             <div style="text-align: center">
                                 <a href={formatEndoomPath(wad, endoom)} class="automap" target="_blank" on:click|preventDefault={() => (modalEndoom = [endoom, "image"])}>{endoom.Name}</a>
@@ -317,7 +319,7 @@
                 {#each paletteImages as paletteImage}
                     <Col>
                         <Card body class="mb-4">
-                            <img alt={paletteImage} src={formatPalettePath(wad, paletteImage)} />
+                            <img alt={paletteImage} src={getCdnUrl(formatPalettePath(wad, paletteImage))} />
                         </Card>
                     </Col>
                 {/each}
@@ -331,7 +333,7 @@
     {#if wad.Maps.length}
         <Modal body header="Automap for {modalMap?.Name ?? 'Map'}" isOpen={modalMap != null} toggle={() => (modalMap = undefined)} size="xl">
             {#if modalMap?.HasAutomapImage}
-                <img alt="Automap for {modalMap?.Name ?? 'Map'}" src={formatMapAutomap(wad, modalMap)} class="automapimage" />
+                <img alt="Automap for {modalMap?.Name ?? 'Map'}" src={getCdnUrl(formatMapAutomap(wad, modalMap))} class="automapimage" />
             {/if}
         </Modal>
     {/if}
@@ -341,7 +343,7 @@
             {#if modalEndoom?.[1] == "text"}
                 <pre style="text-align: center; line-height: normal;">{modalEndoom[0].Text}</pre>
             {:else if modalEndoom?.[1] == "image"}
-                <img alt="Endoom" class="endoomimage" src={formatEndoomPath(wad, modalEndoom[0])} />
+                <img alt="Endoom" class="endoomimage" src={getCdnUrl(formatEndoomPath(wad, modalEndoom[0]))} />
             {/if}
         </Modal>
     {/if}

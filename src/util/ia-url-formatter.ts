@@ -8,6 +8,10 @@ export function formatArchivedBlobPath(path: string) {
     return `https://archive.org/download/wadarchive/DATA/${path.slice(0, 2)}.zip/${encodeURIComponent(`${path.slice(0,2)}/${path.slice(2)}`)}`;
 }
 
+export function getCdnUrl(url: string) {
+    return 'https://wsrv.nl/?' + new URLSearchParams({ url, af: '', l: '9', output: 'png', w: '800', h: '600', we: '' });
+}
+
 const wadTypeToExtension: Record<WadType, string> = { // wad|pk3|pk7|pkz|epk|pke
     [WadType.IWAD]: 'wad',
     [WadType.PWAD]: 'wad',

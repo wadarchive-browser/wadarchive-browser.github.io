@@ -22,12 +22,12 @@
     <h1>Welcome to the Wad Archive Mirror</h1>
 
     <p>
-        This is an unofficial mirror of <a href="https://www.wad-archive.com/" target="_blank" rel="noopener">wad-archive.com</a>.
+        This is an unofficial mirror of <a href="https://www.wad-archive.com/" target="_blank" rel="noopener noreferrer">wad-archive.com</a>.
         No new WADs can be uploaded, but you can browse all existing uploads up until the site's shutdown here.
     </p>
 
     <p>
-        Still need your Doom fix? Checkout the <a href="https://www.doomworld.com/" target="_blank" rel="noopener">Doomworld forums</a>
-        or the <a href="https://doomwiki.org/" target="_blank" rel="noopener">Doom Wiki</a>.
+        Still need your Doom fix? Checkout the <a href="https://www.doomworld.com/" target="_blank" rel="noopener noreferrer">Doomworld forums</a>
+        or the <a href="https://doomwiki.org/" target="_blank" rel="noopener noreferrer">Doom Wiki</a>.
     </p>
 </section>

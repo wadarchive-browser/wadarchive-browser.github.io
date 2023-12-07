@@ -1,7 +1,7 @@
 <script lang="ts">
     import { Container, Row, Col, Icon, Card } from "sveltestrap";
     import type { Map, Wad } from "../util/msgpack-models";
-    import { formatMapAutomap, formatMapScreenshot } from "../util/ia-url-formatter";
+    import { formatMapAutomap, formatMapScreenshot, getCdnUrl } from "../util/ia-url-formatter";
 
     export let wad: Wad;
     export let map: Map;
@@ -31,7 +31,7 @@
                 class="mapimage"
                 title={niceName}
                 alt={niceName}
-                src={formatMapScreenshot(wad, map)}
+                src={getCdnUrl(formatMapScreenshot(wad, map))}
             />
             {/if}
         </Col>
@@ -46,7 +46,7 @@
                 <Col xs="4">{map.CoopSpawns}</Col>
             </Row>
             {#if map.HasAutomapImage}
-            <a href={formatMapAutomap(wad, map)} class="automap" target="_blank" on:click|preventDefault={openAutomapCallback}>View Automap</a>
+            <a href={getCdnUrl(formatMapAutomap(wad, map))} class="automap" target="_blank" rel="noreferrer" on:click|preventDefault={openAutomapCallback}>View Automap</a>
             {/if}
         </Col>
     </Row>
