@@ -38,8 +38,14 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: latest
-          cache: 'npm'
-      - run: npm install
+          cache: 'pnpm'
+      
+      - uses: pnpm/action-setup@v2
+        name: Install pnpm
+        with:
+          version: 8
+          run_install: true
+
       - run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
