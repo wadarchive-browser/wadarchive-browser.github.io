@@ -5,5 +5,8 @@ export default defineConfig({
     plugins: [sveltekit()],
     ssr: {
         noExternal: ['@popperjs/core']
+    },
+    worker: {
+        format: 'es'
     }
 });
