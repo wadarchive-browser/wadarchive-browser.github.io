@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Card, CardHeader, CardTitle, CardBody, CardSubtitle, CardText, Button, CardFooter } from "sveltestrap";
+    import { Card, CardHeader, CardTitle, CardBody, CardSubtitle, CardText, Button, CardFooter } from "@sveltestrap/sveltestrap";
     import { WadFuzzy, searchWads, type SearchResult } from "../../util/wad-search";
     import { onMount } from "svelte";
     import { page } from "$app/stores";

@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from "$app/stores";
-    import { Button, Col, Form, FormGroup, Input, Label, Nav, NavItem, NavLink, Row } from "sveltestrap";
+    import { Button, Col, Form, FormGroup, Input, Label, Nav, NavItem, NavLink, Row } from "@sveltestrap/sveltestrap";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
 

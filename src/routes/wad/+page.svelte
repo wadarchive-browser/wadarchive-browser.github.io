@@ -1,6 +1,6 @@
 <script lang="ts">
     import { page } from '$app/stores';
-    import { Container, Row, Col, Icon, Card, Modal } from "sveltestrap";
+    import { Container, Row, Col, Icon, Card, Modal } from "@sveltestrap/sveltestrap";
     import { getCdnUrl, formatGraphicPath, formatMapScreenshot, formatPalettePath, formatWadDownloadPath, formatMapAutomap, formatEndoomPath } from "../../util/ia-url-formatter";
     import type { PageData } from "./$types";
     import MapComponent from "../../components/MapComponent.svelte";

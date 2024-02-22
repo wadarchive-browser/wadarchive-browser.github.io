@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Container, Row, Col, Icon, Card } from "sveltestrap";
+    import { Container, Row, Col, Icon, Card } from "@sveltestrap/sveltestrap";
     import type { Map, Wad } from "../util/msgpack-models";
     import { formatMapAutomap, formatMapScreenshot, getCdnUrl } from "../util/ia-url-formatter";
 

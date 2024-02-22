@@ -39,6 +39,7 @@
 	"dependencies": {
 		"@js-temporal/polyfill": "^0.4.4",
 		"@msgpack/msgpack": "^3.0.0-beta2",
+		"@sveltestrap/sveltestrap": "^6.2.5",
 		"fflate": "^0.8.1",
 		"msgpack-lite": "^0.1.26",
 		"svelte-icons": "^2.1.0",
