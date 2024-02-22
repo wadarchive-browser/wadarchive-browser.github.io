@@ -39,5 +39,4 @@
             <li>Apr 10, 2023: Added search functionality</li>
             <li>Apr 9, 2023: Initial release</li>
         </ul>
-    </p>
 </section>
