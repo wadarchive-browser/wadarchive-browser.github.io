@@ -4,15 +4,17 @@ import { Zstd } from '@hpcc-js/wasm';
 import { openDB } from 'idb';
 import { browser } from '$app/environment';
 
-const db = browser ? await openDB('WadCache', 1, {
+const dbPromise = browser ? openDB('WadCache', 1, {
     upgrade(database, oldVersion, newVersion, transaction, event) {
         database.createObjectStore('CachedData');
     },
 }) : undefined;
+const zstdPromise = browser ? Zstd.load() : undefined;
 
 export async function fetchZstd(path: string, cache = true): Promise<ArrayBuffer> {
     console.log(path);
-    const zstd = await Zstd.load();
+    const db = await dbPromise;
+    const zstd = await zstdPromise;
 
     if (browser) {
         const existingResult = await db!.get('CachedData', path);
@@ -27,7 +29,7 @@ export async function fetchZstd(path: string, cache = true): Promise<ArrayBuffer
         .then(e =>  e.arrayBuffer())
         .then(e => {
             console.time('Decompress ' + path);
-            const result = zstd.decompress(new Uint8Array(e));
+            const result = zstd!.decompress(new Uint8Array(e));
             console.timeEnd('Decompress ' + path);
             return result;
         });
