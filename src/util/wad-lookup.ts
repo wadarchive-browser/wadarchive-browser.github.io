@@ -49,7 +49,7 @@ export async function queryWad(id: string): Promise<Wad> {
 export async function queryLumpList(wad: Wad): Promise<WadLumps | undefined> {
     if (wad.LumpsInfoIndex == null) return undefined;
 
-    const decompressedMessage = await fetchZstd(`/lumps/${wad.LumpsInfoIndex[0]}/${wad.LumpsInfoIndex[1]}.msg.zstd`, false);
+    const decompressedMessage = await fetchZstd(`/lumps${wad.LumpsInfoIndex[0]}/${wad.LumpsInfoIndex[1]}.msg.zstd`, false);
 
     console.time('Decode LumpList ' + wad.Id);
     const decodedMessage = msgpackDecode(decompressedMessage, { useBigInt64: true }) as Record<string, unknown[]>;
