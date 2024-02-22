@@ -3,7 +3,6 @@ import { HexConverter } from './msgpack-models';
 import uFuzzy from '@leeoniya/ufuzzy';
 import { MessagePackObject, key, type } from './msgpack-serializer';
 import { fetchAndParseZstd, queryWad } from './wad-lookup';
-import { decode as msgpackDecode } from '../msgpack-javascript/src/index';
 
 export class WadFuzzy extends MessagePackObject {
     @key(0) @type(HexConverter) readonly Id!: string;
@@ -28,7 +27,7 @@ class SearchEngine {
         const [idxs, info, order] = this.uf.search(
             this.haystack,
             searchQuery,
-            true,
+            1,
             100_000
         );
         console.timeEnd('Search for ' + searchQuery);

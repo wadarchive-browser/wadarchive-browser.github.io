@@ -1,19 +1,20 @@
 import { expose } from 'comlink';
-import { Zstd } from '@hpcc-js/wasm';
+import Zstd from 'zstandard-wasm/speed';
 import { decode as msgpackDecode } from '../msgpack-javascript/src/index';
 
-const zstdPromise = Zstd.load();
+const zstdPromise = Zstd.loadWASM();
 
 expose({
     async fetchAndDecompress(path: string) {
-        const zstd = await zstdPromise;
+        await zstdPromise;
+
         const fetched = await fetch(path, {
             cache: 'force-cache'
         });
 
         console.time('Decompress & decode ' + path);
         console.time('Decompress ' + path);
-        const result = zstd.decompress(new Uint8Array(await fetched.arrayBuffer()));
+        const result = Zstd.decompress(new Uint8Array(await fetched.arrayBuffer()));
         console.timeEnd('Decompress ' + path);
         console.time('Decode ' + path);
         const decode = msgpackDecode(result, { useBigInt64: true });
