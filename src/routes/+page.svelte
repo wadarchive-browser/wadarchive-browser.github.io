@@ -30,4 +30,14 @@
         Still need your Doom fix? Checkout the <a href="https://www.doomworld.com/" target="_blank" rel="noopener noreferrer">Doomworld forums</a>
         or the <a href="https://doomwiki.org/" target="_blank" rel="noopener noreferrer">Doom Wiki</a>.
     </p>
+
+    <p>
+        Changelog:
+        <ul>
+            <li>Feb 22, 2024: Backend fixes, improved styles, added support for displaying lumps</li>
+            <li>Dec 7, 2023: Use wsrv.nl as CDN for serving images</li>
+            <li>Apr 10, 2023: Added search functionality</li>
+            <li>Apr 9, 2023: Initial release</li>
+        </ul>
+    </p>
 </section>
