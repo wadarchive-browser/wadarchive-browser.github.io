@@ -42,6 +42,7 @@
 		"@js-temporal/polyfill": "^0.4.4",
 		"@msgpack/msgpack": "^3.0.0-beta2",
 		"@sveltestrap/sveltestrap": "^6.2.5",
+		"comlink": "^4.4.1",
 		"fflate": "^0.8.1",
 		"idb": "^8.0.0",
 		"msgpack-lite": "^0.1.26",
