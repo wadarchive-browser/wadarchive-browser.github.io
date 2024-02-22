@@ -13,10 +13,32 @@
     })
 </script>
 
-<style>
-    header {
-        display: flex;
-        justify-content: space-between;
+<style lang="scss">
+    //header {
+    //    display: flex;
+    //    justify-content: space-between;
+    //}
+
+    :global(.nav) {
+        padding: 4px;
+    }
+
+    :global(.search-col) {
+        margin-right: 2px;
+    }
+
+    :global(#searchWad) {
+        color: rgb(209, 205, 199);
+        background-color: rgb(24, 26, 27);
+        border-color: rgb(48, 52, 54);
+        padding: var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x);
+    }
+
+    :global(.search-btn) {
+        padding-top: calc(var(--bs-nav-link-padding-y) - 1px);
+        padding-bottom: calc(var(--bs-nav-link-padding-y) - 1px);
+        padding-left: calc(var(--bs-nav-link-padding-x) - 1px);
+        padding-right: calc(var(--bs-nav-link-padding-x) - 1px);
     }
 </style>
 
@@ -26,9 +48,9 @@
             <NavLink href="/">Home</NavLink>
         </NavItem>
         <NavItem>
-            <Form on:submit={e => (e.preventDefault(), goto('/search?' + new URLSearchParams({q: searchTerm})))}>
+            <Form on:submit={e => (e.preventDefault(), goto('/search?' + new URLSearchParams({q: searchTerm})))} inline>
                 <Row class="gx-1">
-                    <Col>
+                    <Col class="search-col">
                         <Input
                             type="search"
                             name="search"
@@ -38,7 +60,7 @@
                         />
                     </Col>
                     <Col>
-                        <Button type="submit">Search</Button>
+                        <Button type="submit" class="search-btn">Search</Button>
                     </Col>
                 </Row>
             </Form>
