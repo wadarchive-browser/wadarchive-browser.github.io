@@ -1,14 +1,53 @@
 <script lang="ts">
     import { Card, CardHeader, CardTitle, CardBody, CardSubtitle, CardText, Button, CardFooter } from "@sveltestrap/sveltestrap";
     import { WadFuzzy, searchWads, type SearchResult } from "../../util/wad-search";
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
     import { page } from "$app/stores";
     import { never } from "../../util/promise";
     import { Jumper } from "../../components/spinners";
 
     let searchResults: Promise<SearchResult & { query: string }> = never;
 
+    import { derived, writable } from 'svelte/store';
+
+    const q = derived(page, e => e.url.searchParams.get('q'));
+
+    let lastQuery: string | undefined | null = undefined;
+
+    let results: {
+        query: string;
+        count: number;
+        results: WadFuzzy[];
+    } | undefined = undefined;
+
+    let searchErr: unknown | undefined;
+
+    async function searchFor(query?: string | null) {
+        console.log(query);
+
+        if (query == lastQuery) return;
+
+        if (!query) {
+            return {query: '', count: 0, results: []};
+        }
+
+        return {
+            ...await searchWads(query, 250),
+            query
+        };
+    }
+
     onMount(() => {
+        const unsub = q.subscribe(q => {
+            searchFor(q).then(e => results = e).catch(e => searchErr = e);
+        });
+
+        return () => unsub();
+    });
+
+    /*
+    onMount(() => {
+        console.log('went two');
         searchResults = (async () => {
             const query = $page.url.searchParams.get('q');
             if (!query) return {query: '', count: 0, results: []};
@@ -18,6 +57,7 @@
             };
         })();
     });
+    */
 </script>
 
 <style>
@@ -35,9 +75,12 @@
 
 <!--<div class="gcse-search" />-->
 
-{#await searchResults}
+{#if searchErr}
+    <p>Failed to load required data. Error details:</p>
+    <pre>{searchErr}</pre>
+{:else if !results}
     <Jumper size="60" color="var(--bs-code-color)" unit="px" duration="1.5s" />
-{:then results}
+{:else}
     <p>
         <b>Found {results.count} matches for "{results.query}" {#if results.count > 250}(displaying top 250 matches){/if}</b><br>
         Not what you were looking for? Try <a href="/googlesearch?q={encodeURIComponent(results.query)}">searching with Google</a>
@@ -73,7 +116,4 @@
             </Card>
         </a>
     {/each}
-{:catch err}
-    <p>Failed to load required data. Error details:</p>
-    <pre>{err}</pre>
-{/await}
+{/if}
