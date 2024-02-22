@@ -18,6 +18,7 @@
 		<p>Created by <a href="https://github.com/uwx">uwx</a></p>
 		<p>Content sourced from the <a href="https://archive.org/details/wadarchive">Internet Archive</a></p>
 		<p>Some content copyright © <a href="https://www.wad-archive.com/">Wad Archive</a></p>
+		<p><a href="https://github.com/wadarchive-browser/wadarchive-browser.github.io">Website source code</a></p>
 	</footer>
 </div>
 
