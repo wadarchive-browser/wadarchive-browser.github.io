@@ -1,23 +1,24 @@
 <script lang="ts">
     import { page } from '$app/stores';
-    import { Container, Row, Col, Icon, Card, Modal } from "@sveltestrap/sveltestrap";
+    import { Container, Row, Col, Icon, Card, Modal, Table, Button } from "@sveltestrap/sveltestrap";
     import { getCdnUrl, formatGraphicPath, formatMapScreenshot, formatPalettePath, formatWadDownloadPath, formatMapAutomap, formatEndoomPath } from "../../util/ia-url-formatter";
     import type { PageData } from "./$types";
     import MapComponent from "../../components/MapComponent.svelte";
-    import type { Endoom, Map, NiceNames, Wad, WadType } from "../../util/msgpack-models";
-    import { queryWad } from "../../util/wad-lookup";
+    import type { Endoom, Map, NiceNames, Wad, WadLumps, WadType } from "../../util/msgpack-models";
+    import { queryLumpList, queryWad } from "../../util/wad-lookup";
     import details from "$lib/images/details.png";
-    import { aAn, humanizeFileSize, trimToLength } from "../../util";
+    import { aAn, escapeHTML, humanizeFileSize, trimToLength } from "../../util";
     import { redirect } from '@sveltejs/kit';
     import { onMount } from 'svelte';
     import { never } from '../../util/promise';
     import MetaTags from 'svelte-meta-tags/MetaTags.svelte';
+    import { Jumper } from "../../components/spinners";
 
     let modalEndoom: [endoom: Endoom, mode: "text" | "image"] | undefined;
 
     let modalMap: Map | undefined;
 
-    let wadPromise: Promise<Wad & {
+    let wad: Wad & {
         title: string,
         mainScreenshot: string | null,
         formattedDescription: string,
@@ -27,9 +28,14 @@
             width?: number;
             height?: number;
         }>
-    }> = never;
+    };
+
+    let wadLumps: WadLumps | undefined;
 
     let wadId: string | undefined;
+
+    let theErr: unknown | undefined;
+    let loadLumpsErr: unknown | undefined;
 
     onMount(() => {
         wadId = $page.url.searchParams.get('id') ?? undefined;
@@ -38,47 +44,47 @@
             throw redirect(300, '/');
         }
 
-        wadPromise = (async () => {
-            const wad = await queryWad(wadId!);
+        (async () => {
+            const wad1 = await queryWad(wadId!);
 
-            const title = wad.Name
-                ?? wad.FallbackNames[0]
-                ?? wad.Filename
-                ?? wad.Readmes.map(e => e.match(/^\btitle[ \t]*:[ \t]*(.*)$/im)?.[1]?.trim()).find(e => e != null)
-                ?? wad.FallbackFilenames[0];
+            const title = wad1.Name
+                ?? wad1.FallbackNames[0]
+                ?? wad1.Filename
+                ?? wad1.Readmes.map(e => e.match(/^\btitle[ \t]*:[ \t]*(.*)$/im)?.[1]?.trim()).find(e => e != null)
+                ?? wad1.FallbackFilenames[0];
 
             let mainScreenshot: string | null = null;
 
-            const titlepic = wad.Graphics.find(e => e.Name == "TITLE");
-            if (titlepic) mainScreenshot = formatGraphicPath(wad, titlepic);
-            else if (wad.Maps[0]?.Screenshot) mainScreenshot = formatMapScreenshot(wad, wad.Maps[0]);
-            else if (wad.Graphics.length > 0) mainScreenshot = formatGraphicPath(wad, wad.Graphics[0]);
+            const titlepic = wad1.Graphics.find(e => e.Name == "TITLE");
+            if (titlepic) mainScreenshot = formatGraphicPath(wad1, titlepic);
+            else if (wad1.Maps[0]?.Screenshot) mainScreenshot = formatMapScreenshot(wad1, wad1.Maps[0]);
+            else if (wad1.Graphics.length > 0) mainScreenshot = formatGraphicPath(wad1, wad1.Graphics[0]);
 
             if (mainScreenshot != null) mainScreenshot = getCdnUrl(mainScreenshot);
 
             let formattedDescription: string;
-            if (wad.Description ?? wad.FallbackDescriptions?.[0]) {
-                formattedDescription = wad.Description ?? wad.FallbackDescriptions?.[0]!;
+            if (wad1.Description ?? wad1.FallbackDescriptions?.[0]) {
+                formattedDescription = wad1.Description ?? wad1.FallbackDescriptions?.[0]!;
             } else {
-                formattedDescription = wad.Filename ?? wad.FallbackFilenames[0];
-                if (wad.Name ?? wad.FallbackNames[0]) {
-                    formattedDescription += ` (${wad.Name ?? wad.FallbackNames[0]})`;
+                formattedDescription = wad1.Filename ?? wad1.FallbackFilenames[0];
+                if (wad1.Name ?? wad1.FallbackNames[0]) {
+                    formattedDescription += ` (${wad1.Name ?? wad1.FallbackNames[0]})`;
                 }
-                formattedDescription += ` is ${aAn(wad.Type)} ${wad.Type}`;
+                formattedDescription += ` is ${aAn(wad1.Type)} ${wad1.Type}`;
 
-                if (wad.Engines.length) {
-                    formattedDescription += ` for ${wad.Engines.join(", ")}`;
+                if (wad1.Engines.length) {
+                    formattedDescription += ` for ${wad1.Engines.join(", ")}`;
                 }
 
-                if (wad.Maps.length) {
-                    formattedDescription += ` featuring ${wad.Maps.length} map${wad.Maps.length === 1 ? '' : 's'} (${wad.Maps.map(e => e.NiceNames?.LevelName ?? e.FallbackNiceNames[0]?.LevelName ?? e.Name).join(", ")})`;
+                if (wad1.Maps.length) {
+                    formattedDescription += ` featuring ${wad1.Maps.length} map${wad1.Maps.length === 1 ? '' : 's'} (${wad1.Maps.map(e => e.NiceNames?.LevelName ?? e.FallbackNiceNames[0]?.LevelName ?? e.Name).join(", ")})`;
                 }
             }
 
             formattedDescription = trimToLength(500, formattedDescription);
 
-            return {
-                ...wad,
+            wad = {
+                ...wad1,
                 title,
                 mainScreenshot,
                 formattedDescription,
@@ -89,21 +95,31 @@
                             alt: title
                         };
                     }
-                    for (const map of wad.Maps) {
+                    for (const map of wad1.Maps) {
                         if (!map.Screenshot) continue;
 
                         yield {
-                            url: formatMapScreenshot(wad, map),
+                            url: formatMapScreenshot(wad1, map),
                             alt: map.NiceNames?.LevelName ?? map.FallbackNiceNames[0]?.LevelName ?? map.Name
                         };
                     }
                 }
             };
-        })();
+        })().catch(err => {
+            theErr = err;
+        });
     });
+
+    function loadLumps() {
+        (async () => {
+            wadLumps = await queryLumpList(wad);
+        })().catch(err => {
+            loadLumpsErr = err;
+        });
+    }
 </script>
 
-<style>
+<style lang="scss">
     .graphicsimage,
     .endoomthumb {
         width: 100%;
@@ -136,17 +152,43 @@
     h2 {
         margin-top: 2rem;
     }
+
+    .lumps-table-num {
+
+    }
+    .lumps-table-name {
+        max-width: 14rem;
+        > code {
+            word-wrap: normal;
+        }
+    }
+    .lumps-table-size {
+        width: 100%;
+        white-space: nowrap;
+    }
+    .lumps-table-type {
+
+    }
+    .lumps-table-sha1:not(th),
+    .lumps-table-md5:not(th),
+    .lumps-table-sha256:not(th) {
+        font-size: 0.65em;
+        line-height: 2em;
+    }
 </style>
 
 <svelte:head>
-    {#await wadPromise}
+    {#if !wad}
         <title>Wad Archive</title>
-    {/await}
+    {/if}
 </svelte:head>
 
-{#await wadPromise}
-    <h5><i>Loading... Make sure JavaScript is enabled.</i></h5>
-{:then wad}
+{#if theErr}
+    <p>Failed to load required data. Error details:</p>
+    <pre>{theErr}</pre>
+{:else if !wad}
+    <Jumper size="60" color="var(--bs-code-color)" unit="px" duration="1.5s" />
+{:else}
     <MetaTags
         title={wad.title}
         titleTemplate="%s - Wad Archive"
@@ -347,7 +389,68 @@
             {/if}
         </Modal>
     {/if}
-{:catch err}
-    <p>Failed to load required data. Error details:</p>
-    <pre>{err}</pre>
-{/await}
+
+    {#if wad.LumpsInfoIndex}
+        <h2>Lumps</h2>
+        {#if loadLumpsErr}
+        <p>Failed to load lump data. Error details:</p>
+        <pre>{loadLumpsErr}</pre>
+        {:else if !wadLumps}
+        <Button title="Load {wad.CountsLumps} lumps" on:click={e => { e.preventDefault(); loadLumps() }}>
+            Load {wad.CountsLumps} lumps
+        </Button>
+        {:else}
+        <Container>
+            <Table borderless size="sm" responsive>
+                <thead>
+                    <tr>
+                        <th class="lumps-table-num">#</th>
+                        <th class="lumps-table-name">Name</th>
+                        <th class="lumps-table-size">Size</th>
+                        <th class="lumps-table-type">Type</th>
+                        <th class="lumps-table-sha1">SHA-1</th>
+                        <th class="lumps-table-md5">MD5</th>
+                        <th class="lumps-table-sha256">SHA-256</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each wadLumps.Lumps as lump, idx}
+                    <tr>
+                        <th class="lumps-table-num" scope="row">{idx}</th>
+                        <td class="lumps-table-name">
+                            {#if lump.Corrupt}
+                            <span title="File was corrupt">⚠️</span>
+                            {/if}
+                            {#if lump.Compressed}
+                            <span title="File is compressed">🗜️</span>
+                            {/if}
+
+                            <code>{@html escapeHTML(lump.Name).replace(/\//g, '/&ZeroWidthSpace;')}</code></td>
+                        <td class="lumps-table-size">{humanizeFileSize(lump.Size)}</td>
+                        <td class="lumps-table-type">{lump.Type}</td>
+                        <td class="lumps-table-sha1">{lump.Sha1}</td>
+                        <td class="lumps-table-md5">{lump.Md5}</td>
+                        <td class="lumps-table-sha256">{lump.Sha256}</td>
+                    </tr>
+                    {/each}
+                </tbody>
+            </Table>
+
+            <Row cols={{ xs: 2, lg: 4 }}>
+                {#each wad.Graphics as graphic}
+                    <Col>
+                        <Card body inverse class="mb-4">
+                            <a href={getCdnUrl(formatGraphicPath(wad, graphic))} style="text-align: center">
+                                <div>
+                                    <img class="graphicsimage" alt={graphic.Name} src={getCdnUrl(formatGraphicPath(wad, graphic))} />
+                                </div>
+                                {graphic.Name}
+                            </a>
+                        </Card>
+                    </Col>
+                {/each}
+            </Row>
+        </Container>
+        {/if}
+    {/if}
+{/if}

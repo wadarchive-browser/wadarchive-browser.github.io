@@ -2,7 +2,7 @@ import { HexConverter } from './msgpack-models';
 
 import uFuzzy from '@leeoniya/ufuzzy';
 import { MessagePackObject, key, type } from './msgpack-serializer';
-import { fetchGzip, queryWad } from './wad-lookup';
+import { fetchZstd, queryWad } from './wad-lookup';
 import { decode as msgpackDecode } from '../msgpack-javascript/src/index';
 
 export class WadFuzzy extends MessagePackObject {
@@ -68,7 +68,7 @@ export interface SearchResult {
 }
 
 export async function searchWads(searchQuery: string, limit = 1000): Promise<SearchResult> {
-    searchData ??= new SearchEngine(msgpackDecode(await fetchGzip('/wadsFuzzy.msg.gz', false), { useBigInt64: true }) as unknown[][]);
+    searchData ??= new SearchEngine(msgpackDecode(await fetchZstd('/wadsFuzzy.msg.zstd', false), { useBigInt64: true }) as unknown[][]);
 
     const results = searchData.searchWads(searchQuery);
     return {

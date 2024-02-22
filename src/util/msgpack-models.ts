@@ -77,6 +77,25 @@ export class Wad extends MessagePackObject {
     @key(30) @type(array(Graphic)) readonly Graphics!: Graphic[];
     @key(31) @type(array(Endoom)) readonly Endooms!: Endoom[];
     @key(32) @type(array(Map)) readonly Maps!: Map[];
+    @key(33) readonly LumpsInfoIndex!: [number, number] | null;
+}
+
+export class Lump extends MessagePackObject {
+    @key(0) readonly Name!: string;
+    @key(1) readonly Size!: number;
+    @key(2) readonly Type!: number;
+    @key(3) readonly Corrupt!: boolean;
+    @key(4) readonly Compressed!: boolean;
+    @key(5) @type(HexConverter) readonly Sha1!: string;
+    @key(6) @type(HexConverter) readonly Md5!: string;
+    @key(7) @type(HexConverter) readonly Sha256!: string;
+}
+
+export class WadLumps extends MessagePackObject {
+    @key(0) @type(HexConverter) readonly Id!: string;
+    @key(1) readonly Count!: number;
+    @key(2) readonly CorruptCount!: number;
+    @key(3) @type(array(Lump)) readonly Lumps!: Lump[];
 }
 
 export const enum MapFormat {

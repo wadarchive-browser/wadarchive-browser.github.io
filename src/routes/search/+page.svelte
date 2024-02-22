@@ -4,6 +4,7 @@
     import { onMount } from "svelte";
     import { page } from "$app/stores";
     import { never } from "../../util/promise";
+    import { Jumper } from "../../components/spinners";
 
     let searchResults: Promise<SearchResult & { query: string }> = never;
 
@@ -35,7 +36,7 @@
 <!--<div class="gcse-search" />-->
 
 {#await searchResults}
-    <h5><i>Searching... Make sure JavaScript is enabled, this may take a second.</i></h5>
+    <Jumper size="60" color="var(--bs-code-color)" unit="px" duration="1.5s" />
 {:then results}
     <p>
         <b>Found {results.count} matches for "{results.query}" {#if results.count > 250}(displaying top 250 matches){/if}</b><br>
