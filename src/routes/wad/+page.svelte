@@ -36,6 +36,7 @@
 
     let theErr: unknown | undefined;
     let loadLumpsErr: unknown | undefined;
+    let loadingLumps = false;
 
     onMount(() => {
         wadId = $page.url.searchParams.get('id') ?? undefined;
@@ -111,10 +112,13 @@
     });
 
     function loadLumps() {
+        loadingLumps = true;
         (async () => {
             wadLumps = await queryLumpList(wad);
         })().catch(err => {
             loadLumpsErr = err;
+        }).finally(() => {
+            loadingLumps = false;
         });
     }
 </script>
@@ -396,9 +400,13 @@
         <p>Failed to load lump data. Error details:</p>
         <pre>{loadLumpsErr}</pre>
         {:else if !wadLumps}
+        {#if loadingLumps}
+        <Jumper size="60" color="var(--bs-code-color)" unit="px" duration="1.5s" />
+        {:else}
         <Button title="Load {wad.CountsLumps} lumps" on:click={e => { e.preventDefault(); loadLumps() }}>
             Load {wad.CountsLumps} lumps
         </Button>
+        {/if}
         {:else}
         <Container>
             <Table borderless size="sm" responsive>
