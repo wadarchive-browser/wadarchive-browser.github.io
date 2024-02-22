@@ -20,25 +20,25 @@
     //}
 
     :global(.nav) {
-        padding: 4px;
+        padding: 4px !important;
     }
 
     :global(.search-col) {
-        margin-right: 2px;
+        margin-right: 2px !important;
     }
 
     :global(#searchWad) {
-        color: rgb(209, 205, 199);
-        background-color: rgb(24, 26, 27);
-        border-color: rgb(48, 52, 54);
-        padding: var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x);
+        color: rgb(209, 205, 199) !important;
+        background-color: rgb(24, 26, 27) !important;
+        border-color: rgb(48, 52, 54) !important;
+        padding: var(--bs-nav-link-padding-y) var(--bs-nav-link-padding-x) !important;
     }
 
     :global(.search-btn) {
-        padding-top: calc(var(--bs-nav-link-padding-y) - 1px);
-        padding-bottom: calc(var(--bs-nav-link-padding-y) - 1px);
-        padding-left: calc(var(--bs-nav-link-padding-x) - 1px);
-        padding-right: calc(var(--bs-nav-link-padding-x) - 1px);
+        padding-top: calc(var(--bs-nav-link-padding-y) - 1px) !important;
+        padding-bottom: calc(var(--bs-nav-link-padding-y) - 1px) !important;
+        padding-left: calc(var(--bs-nav-link-padding-x) - 1px) !important;
+        padding-right: calc(var(--bs-nav-link-padding-x) - 1px) !important;
     }
 </style>
 
